@@ -21,6 +21,7 @@ var IsServer = false
 
 var notSyncedTxs map[string]rpc.Transaction
 var lock = &sync.Mutex{}
+var RpcClient *rpc.Client
 
 func rmSyncedTx(txs []rpc.Transaction) {
 	lock.Lock()
@@ -50,7 +51,7 @@ func testIsBlue() {
 	outs, _ := GetUsableOuts("TmjTooPeHr27TLkJzvXM9NabbyTEqXY2Bay")
 	for _, o := range outs {
 		if o.Stat == 5 {
-			rs, err := rpc.IsBlue(o.BlockHash)
+			rs, err := RpcClient.IsBlue(o.BlockHash)
 			if err != nil {
 				fmt.Println("rpc error ", err)
 				continue
@@ -74,8 +75,8 @@ func StartSync() {
 func RequestBlock(blockID uint64, blockChan chan *rpc.Block, stop chan bool) {
 
 	for {
-		rs, ok := rpc.GetBlockById(blockID)
-		if !ok {
+		rs, err := RpcClient.GetBlockById(blockID)
+		if err != nil {
 			t := time.NewTicker(time.Second)
 			for {
 				select {
@@ -96,8 +97,8 @@ func RequestBlock(blockID uint64, blockChan chan *rpc.Block, stop chan bool) {
 
 func RequestBlockByIds(ids []uint64, blockChan chan *rpc.Block, stop chan bool) {
 	for _, id := range ids {
-		rs, ok := rpc.GetBlockById(id)
-		if ok {
+		rs, err := RpcClient.GetBlockById(id)
+		if err == nil {
 			rs.Id = id
 			blockChan <- rs
 		}
@@ -121,7 +122,7 @@ func SyncBlocks() {
 		currId, _ = strconv.ParseUint(string(s), 10, 64)
 	}
 
-	LatestHeight, _ = strconv.ParseUint(rpc.GetBlockCount(), 10, 64)
+	LatestHeight, _ = strconv.ParseUint(RpcClient.GetBlockCount(), 10, 64)
 	LatestHeight -= 1
 	fmt.Printf("start sync block,last height:%d;current height:%d\n", LatestHeight, currId)
 
@@ -165,7 +166,7 @@ func SyncMemoryPool() {
 	fmt.Printf("start sync pool transactions， the time interval is %d\n", conf.Setting.Rpc.SyncMemoryInterval)
 	iv := time.Duration(conf.Setting.Rpc.SyncMemoryInterval)
 	defer time.AfterFunc(iv*time.Second, SyncMemoryPool)
-	trans, err := rpc.GetMemoryPool()
+	trans, err := RpcClient.GetMemoryPool()
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -178,7 +179,7 @@ func SyncMemoryPool() {
 		if _, has := notSyncedTxs[txid]; has {
 			continue
 		}
-		tran, err := rpc.GetTransaction(txid)
+		tran, err := RpcClient.GetTransaction(txid)
 		if err != nil {
 			log.Error(err.Error())
 			break
@@ -201,7 +202,7 @@ func SyncPeerInfo() {
 	iv := time.Duration(conf.Setting.Rpc.SyncPeerInfoInterval)
 	defer time.AfterFunc(iv*time.Second, SyncPeerInfo)
 	fmt.Printf("start sync peer info， the time interval is %d\n", conf.Setting.Rpc.SyncPeerInfoInterval)
-	peerInfo, err := rpc.GetPeerInfo()
+	peerInfo, err := RpcClient.GetPeerInfo()
 	if err != nil {
 		log.Error(err.Error())
 		return
@@ -216,7 +217,7 @@ func SyncNodeInfo() {
 	iv := time.Duration(conf.Setting.Rpc.SyncNodeInfoInterval)
 	defer time.AfterFunc(iv*time.Second, SyncNodeInfo)
 	fmt.Printf("start sync node info， the time interval is %d\n", conf.Setting.Rpc.SyncPeerInfoInterval)
-	NodeInfo, err = rpc.GetNodeInfo()
+	NodeInfo, err = RpcClient.GetNodeInfo()
 	if err != nil {
 		log.Error(err.Error())
 		NodeInfo = new(rpc.NodeInfo)
@@ -272,7 +273,7 @@ func SyncMemoryTxState() {
 	txs := Storage.GetMemoryTxs()
 	var rsTxs UniqueList
 	for _, tx := range txs {
-		_, err := rpc.GetTransaction(tx.TxId)
+		_, err := RpcClient.GetTransaction(tx.TxId)
 		if err != nil {
 			if isNoTx(err) {
 				tx.Stat = State_Failed

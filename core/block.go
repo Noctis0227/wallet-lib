@@ -1,7 +1,6 @@
 package core
 
 import (
-	"git.diabin.com/BlockChain/wallet-lib/rpc"
 	"strconv"
 )
 
@@ -14,8 +13,8 @@ func GetBlockRecordByHeight(height string) *BlockRecord {
 	if err != nil {
 		return nil
 	}
-	block, ok := rpc.GetBlock(uHeight)
-	if !ok {
+	block, err := RpcClient.GetBlockByOrder(uHeight)
+	if err != nil {
 		return nil
 	}
 	return GetBlockRecordByHash(block.Hash)

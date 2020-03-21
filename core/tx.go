@@ -48,7 +48,10 @@ func SendTransaction(fromAddr string, key string, toAddr string, amount float64,
 	}
 
 	log.Info("signed string:", strSign)
-	txId, stat := rpc.SendTransaction(strSign)
+	txId, err := RpcClient.SendTransaction(strSign)
+	if err != nil{
+		stat = false
+	}
 	return strings.Trim(txId, "\""), stat
 }
 
@@ -184,7 +187,7 @@ func GetTransaction(id string) (*rpc.Transaction, error) {
 	if len(id) < 1 {
 		return nil, errors.New("query transaction failed! txid is required")
 	}
-	return rpc.GetTransaction(id)
+	return RpcClient.GetTransaction(id)
 }
 
 func GetAddrRecord(addr string, idx, size int) []TxRecord {

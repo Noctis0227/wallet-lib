@@ -5,83 +5,93 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"git.diabin.com/BlockChain/wallet-lib/conf"
-	"git.diabin.com/BlockChain/wallet-lib/log"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-func GetBlock(h uint64) (*Block, bool) {
-	params := []interface{}{h, true}
-	resp := NewReqeust(params).SetMethod("getBlockByOrder").call()
-	blk := new(Block)
-	if resp.Error != nil {
-		//log.Error(resp.Error.Message)
-		return blk, false
-	}
-	if err := json.Unmarshal(resp.Result, blk); err != nil {
-		log.Error(err.Error())
-		return blk, false
-	}
-	return blk, true
+type Client struct{
+	host string
+	auth *Auth
 }
 
-func GetBlockCount() string {
+type Auth struct{
+	User string
+	Pwd string
+}
+
+func NewClient(host string, auth *Auth)*Client{
+	return &Client{
+		host:host,
+		auth:auth,
+	}
+}
+
+func (c *Client)GetBlockByOrder(order uint64) (*Block, error){
+	params := []interface{}{order, true}
+	resp, err := NewReqeust(params).SetMethod("getBlockByOrder").call(c.host, c.auth)
+	if err != nil{
+		return nil, err
+	}
+	blk := new(Block)
+	if resp.Error != nil {
+		return blk, errors.New(resp.Error.Message)
+	}
+	if err := json.Unmarshal(resp.Result, blk); err != nil {
+		return blk, errors.New("failed to parse response json")
+	}
+	return blk,nil
+}
+
+
+func (c *Client)GetBlockCount() string {
 	var params []interface{}
-	resp := NewReqeust(params).SetMethod("getBlockCount").call()
+	resp, err := NewReqeust(params).SetMethod("getBlockCount").call(c.host, c.auth)
+	if err != nil{
+		return "-1"
+	}
 	if resp.Error != nil {
 		return "-1"
 	}
 	return string(resp.Result)
 }
 
-func SendTransaction(tx string) (string, bool) {
+func (c *Client)SendTransaction(tx string) (string, error) {
 	params := []interface{}{strings.Trim(tx, "\n"), false}
-	resp := NewReqeust(params).SetMethod("sendRawTransaction").call()
-	if resp.Error != nil {
-		log.Errorf("send raw transaction failed! %s", resp.Error.Message)
-		return resp.Error.Message, false
+	resp, err := NewReqeust(params).SetMethod("sendRawTransaction").call(c.host, c.auth)
+	if err != nil{
+		return "", err
 	}
-	txId := string(resp.Result)
-	return txId, true
+	if resp.Error != nil {
+		return resp.Error.Message, errors.New(resp.Error.Message)
+	}
+	return string(resp.Result), nil
 }
 
-func GetTransaction(txid string) (*Transaction, error) {
+func (c *Client)GetTransaction(txid string) (*Transaction, error) {
 	params := []interface{}{txid, true}
-	resp := NewReqeust(params).SetMethod("getRawTransaction").call()
+	resp, err := NewReqeust(params).SetMethod("getRawTransaction").call(c.host, c.auth)
+	if err != nil{
+		return nil, err
+	}
 	if resp.Error != nil {
 		return nil, errors.New(resp.Error.Message)
 	}
 	var rs *Transaction
 	if err := json.Unmarshal(resp.Result, &rs); err != nil {
-		return nil, err
+		return nil, errors.New("failed to parse response json")
 	}
 	return rs, nil
 }
 
-func CreateTransaction(inputs []TransactionInput, amounts Amounts) (string, error) {
-	jsonInput, err := json.Marshal(inputs)
-	if err != nil {
-		return "", err
-	}
-	jsonAmount, err := json.Marshal(amounts)
-	if err != nil {
-		return "", err
-	}
-	params := []interface{}{json.RawMessage(jsonInput), json.RawMessage(jsonAmount)}
-	resp := NewReqeust(params).SetMethod("createRawTransaction").call()
-	if resp.Error != nil {
-		return "", errors.New(resp.Error.Message)
-	}
-	encode := string(resp.Result)
-	return encode, nil
-}
-
-func GetMemoryPool() ([]string, error) {
+func (c *Client)GetMemoryPool() ([]string, error) {
 	params := []interface{}{"", false}
-	resp := NewReqeust(params).SetMethod("getMempool").call()
+	resp, err := NewReqeust(params).SetMethod("getMempool").call(c.host, c.auth)
+	if err != nil{
+		return nil, err
+	}
 	if resp.Error != nil {
 		return nil, errors.New(resp.Error.Message)
 	}
@@ -92,50 +102,60 @@ func GetMemoryPool() ([]string, error) {
 	return rs, nil
 }
 
-func GetPeerInfo() ([]PeerInfo, error) {
+func (c *Client)GetPeerInfo() ([]PeerInfo, error) {
 	var params []interface{}
-	resp := NewReqeust(params).SetMethod("getPeerInfo").call()
+	resp, err := NewReqeust(params).SetMethod("getPeerInfo").call(c.host, c.auth)
+	if err != nil{
+		return nil, err
+	}
 	if resp.Error != nil {
 		return nil, errors.New(resp.Error.Message)
 	}
 	var rs []PeerInfo
 	if err := json.Unmarshal(resp.Result, &rs); err != nil {
-		return nil, err
+		return nil, errors.New("failed to parse response json")
 	}
 	return rs, nil
 }
 
-func GetBlockById(id uint64) (*Block, bool) {
+func (c *Client)GetBlockById(id uint64) (*Block, error) {
 	params := []interface{}{id, true}
-	resp := NewReqeust(params).SetMethod("getBlockByID").call()
+	resp, err := NewReqeust(params).SetMethod("getBlockByID").call(c.host, c.auth)
+	if err != nil{
+		return nil, err
+	}
 	blk := new(Block)
 	if resp.Error != nil {
-		return blk, false
+		return blk, errors.New(resp.Error.Message)
 	}
 	if err := json.Unmarshal(resp.Result, blk); err != nil {
-		log.Error(err.Error())
-		return blk, false
+		return blk, errors.New("failed to parse response json")
 	}
-	return blk, true
+	return blk, nil
 }
 
-func GetNodeInfo() (*NodeInfo, error) {
+func (c *Client)GetNodeInfo() (*NodeInfo, error) {
 	params := []interface{}{}
-	resp := NewReqeust(params).SetMethod("getNodeInfo").call()
+	resp, err := NewReqeust(params).SetMethod("getNodeInfo").call(c.host, c.auth)
+	if err != nil{
+		return nil, err
+	}
 	nodeInfo := new(NodeInfo)
 	if resp.Error != nil {
 		return nodeInfo, errors.New(resp.Error.Message)
 	}
 	if err := json.Unmarshal(resp.Result, nodeInfo); err != nil {
-		log.Error(err.Error())
-		return nodeInfo, err
+		return nodeInfo, errors.New("failed to parse response json")
 	}
 	return nodeInfo, nil
 }
 
-func IsBlue(hash string) (int, error) {
+func (c *Client)IsBlue(hash string) (int, error) {
 	params := []interface{}{hash}
-	resp := NewReqeust(params).SetMethod("isBlue").call()
+	resp, err := NewReqeust(params).SetMethod("isBlue").call(c.host, c.auth)
+	if err != nil{
+		return 0, err
+	}
 	if resp.Error != nil {
 		return 0, errors.New(resp.Error.Message)
 	}
@@ -146,8 +166,7 @@ func IsBlue(hash string) (int, error) {
 	return state, nil
 }
 
-func (req *ClientRequest) call() *ClientResponse {
-	cfg := conf.Setting.Rpc
+func (req *ClientRequest) call(host string, auth *Auth) (*ClientResponse, error) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -157,53 +176,44 @@ func (req *ClientRequest) call() *ClientResponse {
 	//convert struct to []byte
 	marshaledData, err := json.Marshal(req)
 	if err != nil {
-		log.Error(err.Error())
+		return nil, fmt.Errorf("rpc client encoding json failed; error:%s ", err.Error())
 	}
-	//log.Debugf("rpc call starting, Host:%s, params:%s", cfg.Host, marshaledData)
 
 	httpRequest, err :=
-		http.NewRequest(http.MethodPost, cfg.Host, bytes.NewReader(marshaledData))
+		http.NewRequest(http.MethodPost, host, bytes.NewReader(marshaledData))
 	if err != nil {
-		log.Error(err.Error())
+		return nil, fmt.Errorf("rpc client create request failed; error:%s ", err.Error())
 	}
 
 	if httpRequest == nil {
-		log.Error("the httpRequest is nil")
-		return &ClientResponse{Error: &Error{Message: "the httpRequest is nil"}}
+		return nil, fmt.Errorf("rpc client create request failed")
 	}
 	httpRequest.Close = true
 	httpRequest.Header.Set("Content-Type", "application/json")
-	httpRequest.SetBasicAuth(conf.Setting.Rpc.User, conf.Setting.Rpc.Pwd)
-	//log.Debugf("u:%s;p:%s", cfg.User, cfg.Pwd)
+	httpRequest.SetBasicAuth(auth.User,auth.Pwd)
 
 	response, err := client.Do(httpRequest)
 	if err != nil {
-		log.Error(err.Error())
-		return &ClientResponse{Error: &Error{Message: err.Error()}}
+		return &ClientResponse{Error: &Error{Message: err.Error()}}, nil
 	}
 
 	body := response.Body
 
 	bodyBytes, err := ioutil.ReadAll(body)
 	if err != nil {
-		log.Error("io read error", err.Error())
+		return nil, fmt.Errorf("failed to read response body; error:%s", err.Error())
 	}
-
-	//log.Info("rpc call successful! ", string(bodyBytes))
 
 	resp := &ClientResponse{}
 	//convert []byte to struct
 	if err := json.Unmarshal(bodyBytes, resp); err != nil {
-		log.Errorf("json unmarshal failed; value:%s; error:%s", string(bodyBytes), err.Error())
+		return nil, fmt.Errorf("json unmarshal failed; value:%s; error:%s", string(bodyBytes), err.Error())
 	}
 
 	err = response.Body.Close()
 	if err != nil {
-		log.Error(err.Error())
+		return nil, fmt.Errorf("close response failed; error:%s", err.Error())
 	}
 
-	if resp.Error != nil {
-		//log.Fail(resp.Error.Message)
-	}
-	return resp
+	return resp, nil
 }

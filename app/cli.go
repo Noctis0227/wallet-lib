@@ -178,8 +178,8 @@ func (cmd *txCommand) handle() {
 		}
 	case cmd.trading:
 		println("send raw tx ", cmd.rawtx)
-		rs, stat := rpc.SendTransaction(cmd.rawtx)
-		if stat {
+		rs, err := core.RpcClient.SendTransaction(cmd.rawtx)
+		if err == nil {
 			println("send raw tx success, txid:", rs)
 		} else {
 			println("send raw tx failed!", rs)

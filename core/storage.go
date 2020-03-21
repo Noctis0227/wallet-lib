@@ -319,7 +319,7 @@ func GetOutKey(txid string, idx interface{}) string {
 }
 
 func SaveFromBlock(b *rpc.Block) error {
-	blockColor, err := rpc.IsBlue(b.Hash)
+	blockColor, err := RpcClient.IsBlue(b.Hash)
 	if err != nil {
 		return err
 	}
