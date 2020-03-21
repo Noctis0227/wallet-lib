@@ -1,7 +1,7 @@
 package core
 
 import (
-	"kahf/rpc"
+	"git.diabin.com/BlockChain/wallet-lib/rpc"
 	"strconv"
 )
 

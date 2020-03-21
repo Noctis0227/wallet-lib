@@ -2,9 +2,9 @@ package core
 
 import (
 	"fmt"
-	"kahf/conf"
-	"kahf/log"
-	"kahf/rpc"
+	"git.diabin.com/BlockChain/wallet-lib/conf"
+	"git.diabin.com/BlockChain/wallet-lib/log"
+	"git.diabin.com/BlockChain/wallet-lib/rpc"
 	"strconv"
 	"strings"
 	"sync"

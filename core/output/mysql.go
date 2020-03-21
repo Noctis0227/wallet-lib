@@ -1,8 +1,8 @@
 package output
 
 import (
-	"github.com/Qitmeer/qitmeer-lib/core/types"
-	"kahf/core"
+	"git.diabin.com/BlockChain/wallet-lib/core"
+	"github.com/Qitmeer/qitmeer/core/types"
 )
 
 type MysqlOutput struct {

@@ -2,7 +2,7 @@ package log
 
 import (
 	"fmt"
-	"kahf/conf"
+	"git.diabin.com/BlockChain/wallet-lib/conf"
 	"log"
 	"os"
 	"strings"

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"kahf/app"
+	"git.diabin.com/BlockChain/wallet-lib/app"
 	"os"
 )
 

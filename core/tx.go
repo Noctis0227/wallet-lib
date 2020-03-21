@@ -3,11 +3,11 @@ package core
 import (
 	"errors"
 	"fmt"
-	"github.com/Qitmeer/qitmeer-lib/core/types"
-	"github.com/Qitmeer/qitmeer-lib/qx"
-	"kahf/conf"
-	"kahf/log"
-	"kahf/rpc"
+	"git.diabin.com/BlockChain/wallet-lib/conf"
+	"git.diabin.com/BlockChain/wallet-lib/log"
+	"git.diabin.com/BlockChain/wallet-lib/rpc"
+	"github.com/Qitmeer/qitmeer/core/types"
+	"github.com/Qitmeer/qitmeer/qx"
 	"strings"
 )
 
@@ -79,7 +79,6 @@ func SignedTx(fromAddr string, key string, toAddr string, amount float64, fees u
 			return strSign, stat
 		}
 
-		
 		fees = GetFees(strSign, speed)
 		if sum >= iAmount+fees || (sum < iAmount+fees && iUsable >= iAmount) {
 			break

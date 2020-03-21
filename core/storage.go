@@ -2,8 +2,8 @@ package core
 
 import (
 	"fmt"
-	"kahf/log"
-	"kahf/rpc"
+	"git.diabin.com/BlockChain/wallet-lib/log"
+	"git.diabin.com/BlockChain/wallet-lib/rpc"
 	"strconv"
 	"strings"
 	"time"

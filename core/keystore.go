@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"encoding/hex"
 	"fmt"
-	"github.com/Qitmeer/qitmeer-lib/qx"
+	"git.diabin.com/BlockChain/wallet-lib/conf"
+	"git.diabin.com/BlockChain/wallet-lib/log"
+	"github.com/Qitmeer/qitmeer/qx"
 	"io"
-	"kahf/conf"
-	"kahf/log"
 	"os"
 )
 

@@ -1,6 +1,6 @@
 package core
 
-import "github.com/Qitmeer/qitmeer-lib/core/types"
+import "github.com/Qitmeer/qitmeer/core/types"
 
 func GetAddressAmounts(addr string) *AddressInfo {
 	_, usableAmount := GetUsableOuts(addr)

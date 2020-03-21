@@ -3,9 +3,9 @@ package app
 import (
 	"flag"
 	"fmt"
-	"kahf/conf"
-	"kahf/core"
-	"kahf/rpc"
+	"git.diabin.com/BlockChain/wallet-lib/conf"
+	"git.diabin.com/BlockChain/wallet-lib/core"
+	"git.diabin.com/BlockChain/wallet-lib/rpc"
 	"os"
 )
 
@@ -553,5 +553,3 @@ func printTransaction(transaction *rpc.Transaction) {
 	fmt.Println(" ]")
 	fmt.Println("}")
 }
-
-

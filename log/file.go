@@ -2,7 +2,7 @@ package log
 
 import (
 	"fmt"
-	"kahf/tools"
+	"git.diabin.com/BlockChain/wallet-lib/tools"
 	"log"
 	"os"
 	"runtime"
