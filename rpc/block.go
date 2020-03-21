@@ -101,8 +101,8 @@ type GraphState struct {
 }
 
 type NodeInfo struct {
-	Confirmations    int `json:"confirmations"`
-	Coinbasematurity int `json:"coinbasematurity"`
+	Confirmations    uint32 `json:"confirmations"`
+	Coinbasematurity uint32 `json:"coinbasematurity"`
 	GraphState       `json:"graphstate"`
 }
 

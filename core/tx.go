@@ -49,7 +49,7 @@ func SendTransaction(fromAddr string, key string, toAddr string, amount float64,
 
 	log.Info("signed string:", strSign)
 	txId, err := RpcClient.SendTransaction(strSign)
-	if err != nil{
+	if err != nil {
 		stat = false
 	}
 	return strings.Trim(txId, "\""), stat
