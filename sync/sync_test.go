@@ -8,7 +8,7 @@ import (
 func TestSynchronizer_Start(t *testing.T) {
 	opt := &Options{
 		RpcUser: "admin",
-		RpcPWd:  "123",
+		RpcPwd:  "123",
 		RpcAddr: "127.0.0.1:1234",
 		TxChLen: 100,
 	}

@@ -29,6 +29,5 @@ func init() {
 }
 
 func DecodeSetting(key string) {
-	Setting.Miner.decode(key)
 	Setting.Rpc.decode(key)
 }

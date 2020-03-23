@@ -1,5 +1,7 @@
 package core
 
+import "github.com/Qitmeer/qitmeer/core/types"
+
 type IQueryOutput interface {
 	GetUsable(addr string) ([]Output, float64)
 	GetUnspent(addr string) ([]Output, float64)
@@ -12,38 +14,65 @@ type IQueryOutput interface {
 	GetOutput(key string) *Output
 }
 
-func GetUsableOuts(addr string) ([]Output, float64) {
-	return QueryOutput.GetUsable(addr)
+type QueryOutput struct {
 }
 
-func GetUnspentOuts(addr string) ([]Output, float64) {
-	return QueryOutput.GetUnspent(addr)
+func (m *QueryOutput) GetUsable(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id = ? and stat = ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, "", 0})
+	return outs, getOutAmount(outs)
 }
 
-func GetSpentOuts(addr string) ([]Output, float64) {
-	return QueryOutput.GetSpent(addr)
+func (m *QueryOutput) GetUnspent(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id = ? and stat <> ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, "", 3})
+	return outs, getOutAmount(outs)
 }
 
-func GetMemoryUnspent(addr string) ([]Output, float64) {
-	return QueryOutput.GetMemoryUnspent(addr)
+func (m *QueryOutput) GetSpent(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id <> ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, ""})
+	return outs, getOutAmount(outs)
 }
 
-func GetMemorySpent(addr string) ([]Output, float64) {
-	return QueryOutput.GetMemorySpent(addr)
+func (m *QueryOutput) GetMemoryUnspent(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id = ? and stat = ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, "", 2})
+	return outs, getOutAmount(outs)
 }
 
-func GetLockedUnspent(addr string) ([]Output, float64) {
-	return QueryOutput.GetLockUnspent(addr)
+func (m *QueryOutput) GetMemorySpent(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id <> ? and stat = ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, "", 2})
+	return outs, getOutAmount(outs)
 }
 
-func GetBalance(addr string) ([]Output, float64) {
-	return QueryOutput.GetBalance(addr)
+func (m *QueryOutput) GetLockUnspent(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id = ? and stat = ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, "", 1})
+	return outs, getOutAmount(outs)
 }
 
-func GetAllOuts(addr string) ([]Output, float64) {
-	return QueryOutput.GetAllOuts(addr)
+func (m *QueryOutput) GetBalance(addr string) ([]Output, float64) {
+	condition := "address = ? and spent_tx_id = ? and stat < ?"
+	outs := List.QueryOuts(condition, []interface{}{addr, "", 3})
+	return outs, getOutAmount(outs)
 }
 
-func GetOutput(key string) *Output {
+func (m *QueryOutput) GetAllOuts(addr string) ([]Output, float64) {
+	condition := "address = ?"
+	outs := List.QueryOuts(condition, []interface{}{addr})
+	return outs, getOutAmount(outs)
+}
+
+func (m *QueryOutput) GetOutput(key string) *Output {
 	return Storage.GetOutput(key)
+}
+
+func getOutAmount(outs []Output) float64 {
+	var total uint64
+	for _, out := range outs {
+		total += out.Amount
+	}
+	return types.Amount(total).ToCoin()
 }

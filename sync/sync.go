@@ -29,7 +29,7 @@ type Options struct {
 	// Rpc option
 	RpcAddr string
 	RpcUser string
-	RpcPWd  string
+	RpcPwd  string
 
 	// tx channel length
 	TxChLen uint
@@ -51,7 +51,7 @@ func NewSynchronizer(opt *Options) *Synchronizer {
 	client := rpc.NewClient(&rpc.RpcConfig{
 		Address: opt.RpcAddr,
 		User:    opt.RpcUser,
-		Pwd:     opt.RpcPWd,
+		Pwd:     opt.RpcPwd,
 	})
 	return &Synchronizer{
 		rpcClient:          client,

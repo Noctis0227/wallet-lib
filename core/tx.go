@@ -56,7 +56,7 @@ func SendTransaction(fromAddr string, key string, toAddr string, amount float64,
 }
 
 func SignedTx(fromAddr string, key string, toAddr string, amount float64, fees uint64, speed float64) (string, bool) {
-	utxo, usable := GetUsableOuts(fromAddr)
+	utxo, usable := new(QueryOutput).GetUsable(fromAddr)
 	if utxo == nil || 0 == len(utxo) {
 		return "There is not enough balance", false
 	}
@@ -154,50 +154,11 @@ func GetFees(strSign string, speed float64) uint64 {
 	return uint64(float64(len(strSign)) / 2 / 1000 * 10000 * speed)
 }
 
-func GetLatestTxRecords(idx int, size int) []TxRecord {
-	if idx == 0 {
-		idx = 1
-	}
-	if size == 0 {
-		size = 50
-	}
-	return List.QueryLatestTx(idx, size)
-}
-
-func GetLatestTxRecordOuts(txid string, idx int, size int) []Output {
-	if idx == 0 {
-		idx = 1
-	}
-	if size == 0 {
-		size = 50
-	}
-	return List.QueryLatestRecordOuts(txid, idx, size)
-}
-
-func GetTxRecord(txId string) *TxRecord {
-	txRecord := Storage.GetTxRecord(txId)
-	if txRecord == nil {
-		return nil
-	}
-
-	return txRecord
-}
-
 func GetTransaction(id string) (*rpc.Transaction, error) {
 	if len(id) < 1 {
 		return nil, errors.New("query transaction failed! txid is required")
 	}
 	return RpcClient.GetTransaction(id)
-}
-
-func GetAddrRecord(addr string, idx, size int) []TxRecord {
-	if idx == 0 {
-		idx = 1
-	}
-	if size == 0 {
-		size = 50
-	}
-	return List.QueryAddrLastestTx(addr, idx, size)
 }
 
 func NewAmount(amount float64) (uint64, error) {
@@ -206,41 +167,4 @@ func NewAmount(amount float64) (uint64, error) {
 		return 0, err
 	}
 	return uint64(iAmount), nil
-}
-
-func TxRecordToJsonTxRecord(txRecord *TxRecord) *JsonTxRecord {
-	outs := Storage.GetTxOutputs(txRecord.TxId)
-	jsonOuts := make([]*JsonOutRecord, 0)
-	index := 0
-	for i, out := range outs {
-		if out.Address == txRecord.From {
-			index = i
-		}
-		jsonOuts = append(jsonOuts, &JsonOutRecord{
-			OutIndex:  out.OutIndex,
-			Address:   out.Address,
-			Amount:    out.Amount,
-			SpentTxId: out.SpentTxId,
-			IsChange:  false,
-		})
-	}
-	if len(outs) > 1 {
-		jsonOuts[index].IsChange = true
-	}
-
-	jsonTx := &JsonTxRecord{
-		Id:         txRecord.Id,
-		TxId:       txRecord.TxId,
-		From:       txRecord.From,
-		Amount:     txRecord.Amount,
-		ToCount:    txRecord.ToCount,
-		Spent:      txRecord.Spent,
-		Change:     txRecord.Change,
-		Fee:        txRecord.Fee,
-		BlockOrder: txRecord.BlockOrder,
-		InTime:     txRecord.InTime,
-		Stat:       txRecord.Stat,
-		Outs:       jsonOuts,
-	}
-	return jsonTx
 }
