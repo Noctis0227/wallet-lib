@@ -13,25 +13,24 @@ import (
 )
 
 type Client struct {
-	host string
-	auth *Auth
+	rpcCfg *RpcConfig
 }
 
-type Auth struct {
-	User string
-	Pwd  string
+type RpcConfig struct {
+	Address string
+	User    string
+	Pwd     string
 }
 
-func NewClient(host string, auth *Auth) *Client {
+func NewClient(cfg *RpcConfig) *Client {
 	return &Client{
-		host: host,
-		auth: auth,
+		cfg,
 	}
 }
 
 func (c *Client) GetBlockByOrder(order uint64) (*Block, error) {
 	params := []interface{}{order, true}
-	resp, err := NewReqeust(params).SetMethod("getBlockByOrder").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("getBlockByOrder").call(c.rpcCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +46,7 @@ func (c *Client) GetBlockByOrder(order uint64) (*Block, error) {
 
 func (c *Client) GetBlockCount() string {
 	var params []interface{}
-	resp, err := NewReqeust(params).SetMethod("getBlockCount").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("getBlockCount").call(c.rpcCfg)
 	if err != nil {
 		return "-1"
 	}
@@ -59,7 +58,7 @@ func (c *Client) GetBlockCount() string {
 
 func (c *Client) SendTransaction(tx string) (string, error) {
 	params := []interface{}{strings.Trim(tx, "\n"), false}
-	resp, err := NewReqeust(params).SetMethod("sendRawTransaction").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("sendRawTransaction").call(c.rpcCfg)
 	if err != nil {
 		return "", err
 	}
@@ -69,9 +68,9 @@ func (c *Client) SendTransaction(tx string) (string, error) {
 	return string(resp.Result), nil
 }
 
-func (c *Client) GetTransaction(txid string) (*Transaction, error) {
-	params := []interface{}{txid, true}
-	resp, err := NewReqeust(params).SetMethod("getRawTransaction").call(c.host, c.auth)
+func (c *Client) GetTransaction(txId string) (*Transaction, error) {
+	params := []interface{}{txId, true}
+	resp, err := NewReqeust(params).SetMethod("getRawTransaction").call(c.rpcCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func (c *Client) GetTransaction(txid string) (*Transaction, error) {
 
 func (c *Client) GetMemoryPool() ([]string, error) {
 	params := []interface{}{"", false}
-	resp, err := NewReqeust(params).SetMethod("getMempool").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("getMempool").call(c.rpcCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -101,25 +100,9 @@ func (c *Client) GetMemoryPool() ([]string, error) {
 	return rs, nil
 }
 
-func (c *Client) GetPeerInfo() ([]PeerInfo, error) {
-	var params []interface{}
-	resp, err := NewReqeust(params).SetMethod("getPeerInfo").call(c.host, c.auth)
-	if err != nil {
-		return nil, err
-	}
-	if resp.Error != nil {
-		return nil, errors.New(resp.Error.Message)
-	}
-	var rs []PeerInfo
-	if err := json.Unmarshal(resp.Result, &rs); err != nil {
-		return nil, errors.New("failed to parse response json")
-	}
-	return rs, nil
-}
-
 func (c *Client) GetBlockById(id uint64) (*Block, error) {
 	params := []interface{}{id, true}
-	resp, err := NewReqeust(params).SetMethod("getBlockByID").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("getBlockByID").call(c.rpcCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +118,7 @@ func (c *Client) GetBlockById(id uint64) (*Block, error) {
 
 func (c *Client) GetNodeInfo() (*NodeInfo, error) {
 	params := []interface{}{}
-	resp, err := NewReqeust(params).SetMethod("getNodeInfo").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("getNodeInfo").call(c.rpcCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +134,7 @@ func (c *Client) GetNodeInfo() (*NodeInfo, error) {
 
 func (c *Client) IsBlue(hash string) (int, error) {
 	params := []interface{}{hash}
-	resp, err := NewReqeust(params).SetMethod("isBlue").call(c.host, c.auth)
+	resp, err := NewReqeust(params).SetMethod("isBlue").call(c.rpcCfg)
 	if err != nil {
 		return 0, err
 	}
@@ -165,7 +148,7 @@ func (c *Client) IsBlue(hash string) (int, error) {
 	return state, nil
 }
 
-func (req *ClientRequest) call(host string, auth *Auth) (*ClientResponse, error) {
+func (req *ClientRequest) call(rpcCfg *RpcConfig) (*ClientResponse, error) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -179,7 +162,7 @@ func (req *ClientRequest) call(host string, auth *Auth) (*ClientResponse, error)
 	}
 
 	httpRequest, err :=
-		http.NewRequest(http.MethodPost, host, bytes.NewReader(marshaledData))
+		http.NewRequest(http.MethodPost, "http://"+rpcCfg.Address, bytes.NewReader(marshaledData))
 	if err != nil {
 		return nil, fmt.Errorf("rpc client create request failed; error:%s ", err.Error())
 	}
@@ -189,7 +172,7 @@ func (req *ClientRequest) call(host string, auth *Auth) (*ClientResponse, error)
 	}
 	httpRequest.Close = true
 	httpRequest.Header.Set("Content-Type", "application/json")
-	httpRequest.SetBasicAuth(auth.User, auth.Pwd)
+	httpRequest.SetBasicAuth(rpcCfg.User, rpcCfg.Pwd)
 
 	response, err := client.Do(httpRequest)
 	if err != nil {

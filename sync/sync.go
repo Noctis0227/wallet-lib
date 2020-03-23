@@ -27,8 +27,9 @@ type Synchronizer struct {
 
 type Options struct {
 	// Rpc option
-	Auth *rpc.Auth
-	Host string
+	RpcAddr string
+	RpcUser string
+	RpcPWd  string
 
 	// tx channel length
 	TxChLen uint
@@ -40,14 +41,18 @@ type HistoryId struct {
 }
 
 func NewSynchronizer(opt *Options) *Synchronizer {
-	if opt.Host == "" {
-		opt.Host = defaultHost
+	if opt.RpcAddr == "" {
+		opt.RpcAddr = defaultHost
 	}
 	if opt.TxChLen == 0 {
 		opt.TxChLen = defaultTxChLen
 	}
 
-	client := rpc.NewClient(opt.Host, opt.Auth)
+	client := rpc.NewClient(&rpc.RpcConfig{
+		Address: opt.RpcAddr,
+		User:    opt.RpcUser,
+		Pwd:     opt.RpcPWd,
+	})
 	return &Synchronizer{
 		rpcClient:          client,
 		opt:                opt,

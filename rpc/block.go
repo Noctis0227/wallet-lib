@@ -2,10 +2,8 @@ package rpc
 
 import (
 	"time"
-	"unsafe"
 )
 
-//获取每一个区块所需数据
 type Block struct {
 	Id            uint64        `json:"-"`
 	Hash          string        `json:"hash"`
@@ -24,7 +22,6 @@ type Block struct {
 	ChildrenHash  []string      `json:"children"`
 }
 
-//区块中对应的每一个transaction
 type Transaction struct {
 	Hex           string `json:"hex"`
 	Hexwit        string `json:"hexwit"`
@@ -41,19 +38,15 @@ type Transaction struct {
 }
 
 type Vin struct {
-	//在有交易打包后才有此字段，也就是说接收过他人转账，并且有可用的utxo都块才会在vin中包含这个字段
-	Txid string `json:"txid"`
-	//在有交易打包后才有此字段
-	Vout        uint64 `json:"vout"`
-	Amountin    uint64 `json:"amountin"`
-	Blockheight uint64 `json:"blockheight"`
-	Blockindex  uint64 `json:"blockindex"`
-	Coinbase    string `json:"coinbase"`
-	Txindex     uint64 `json:"txindex"`
-	//在无交易打包时才有此字段
-	Sequence uint64 `json:"sequence"`
-	//在有交易打包后才有此字段(代表私钥加签)
-	ScriptSig ScriptSig `json:"scriptSig"`
+	Txid        string    `json:"txid"`
+	Vout        uint64    `json:"vout"`
+	Amountin    uint64    `json:"amountin"`
+	Blockheight uint64    `json:"blockheight"`
+	Blockindex  uint64    `json:"blockindex"`
+	Coinbase    string    `json:"coinbase"`
+	Txindex     uint64    `json:"txindex"`
+	Sequence    uint64    `json:"sequence"`
+	ScriptSig   ScriptSig `json:"scriptSig"`
 }
 
 type ScriptSig struct {
@@ -74,25 +67,6 @@ type ScriptPubKey struct {
 	Addresses []string `json:"addresses"`
 }
 
-type PeerInfo struct {
-	Id         uint64     `json:"id"`
-	Addr       string     `json:"addr"`
-	AddrLocal  string     `json:"addrlocal"`
-	Services   string     `json:"services"`
-	Relaytxes  bool       `json:"relaytxes"`
-	LastSend   uint64     `json:"lastsend"`
-	LastRecv   uint64     `json:"lastrecv"`
-	Conntime   uint64     `json:"conntime"`
-	TimeOffSet int64      `json:"timeoffset"`
-	PingTime   uint64     `json:"pingtime"`
-	Version    uint64     `json:"version"`
-	Subver     string     `json:"subver"`
-	Inbound    bool       `json:"inbound"`
-	BansCore   uint64     `json:"banscore"`
-	SyncNode   bool       `json:"syncnode"`
-	GraphState GraphState `json:"graphstate"`
-}
-
 type GraphState struct {
 	Tips       []string `json:"tips"`
 	Mainorder  uint64   `json:"mainorder"`
@@ -104,19 +78,4 @@ type NodeInfo struct {
 	Confirmations    uint32 `json:"confirmations"`
 	Coinbasematurity uint32 `json:"coinbasematurity"`
 	GraphState       `json:"graphstate"`
-}
-
-func (b *Block) Size() int {
-	total := 0
-	total += int(unsafe.Sizeof(*b))
-	for _, tx := range b.Transactions {
-		total += int(unsafe.Sizeof(tx))
-		for _, vin := range tx.Vin {
-			total += int(unsafe.Sizeof(vin))
-		}
-		for _, vout := range tx.Vout {
-			total += int(unsafe.Sizeof(vout))
-		}
-	}
-	return total
 }

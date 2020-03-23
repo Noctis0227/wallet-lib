@@ -2,7 +2,6 @@ package rpc
 
 import "encoding/json"
 
-//Params类型不确定，可以是数组，也可以是map参数
 type ClientRequest struct {
 	JsonRpc string        `json:"jsonrpc"`
 	Method  string        `json:"method"`
@@ -10,7 +9,6 @@ type ClientRequest struct {
 	Id      interface{}   `json:"id"`
 }
 
-//Result类型不确定，可以是string，也可以是int等类型
 type ClientResponse struct {
 	Result json.RawMessage `json:"result"`
 	Error  *Error          `json:"error"`

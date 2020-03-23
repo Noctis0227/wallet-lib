@@ -2,6 +2,10 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Qitmeer/qitmeer v0.8.5 h1:JHq2AwsdneoXrwJ0gtozv+tRMkT0RknDOevPQjtlzfM=
 github.com/Qitmeer/qitmeer v0.8.5/go.mod h1:Hwvsn1+VmfR1OrnVLekDlfuRNsSyQMya+asz8rvlxA4=
+github.com/Qitmeer/qitmeer-lib v0.0.0-20190927060659-8c7d8a100ac6 h1:CHcVWwlF+lfmbgttLC3ocPjnBRItqFw9ojvO8BBbMuI=
+github.com/Qitmeer/qitmeer-lib v0.0.0-20190927060659-8c7d8a100ac6/go.mod h1:AZAzuGwoPls8fMI31Gr/LA8+8jJ1wilF0Dq2fwwR9AY=
+github.com/Qitmeer/qx v0.0.0-20190927070954-15fd0f328a85 h1:SmrXA0A9mK/asxFwgIfjaLeob34wbOGvbBhrQw4VKcU=
+github.com/Qitmeer/qx v0.0.0-20190927070954-15fd0f328a85/go.mod h1:HlUEq8qGngzFnYlYvZ2XbuTxcjliGT9CPko2GCaRe/k=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dchest/blake256 v1.0.0 h1:6gUgI5MHdz9g0TdrgKqXsoDX+Zjxmm1Sc6OsoGru50I=
@@ -18,6 +22,9 @@ github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db/go.mod h1:/XxbfmMg8l
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=
+github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
+github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
+github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/mattn/go-colorable v0.1.1/go.mod h1:FuOcm+DKB9mbwrcAfNl7/TZVBZ6rcnceauSikq3lYCQ=
 github.com/mattn/go-isatty v0.0.5/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
@@ -56,6 +63,7 @@ gonum.org/v1/gonum v0.0.0-20190608115022-c5f01565d866 h1:FqYrBXUEWecz6YveEJaEVE2
 gonum.org/v1/gonum v0.0.0-20190608115022-c5f01565d866/go.mod h1:zXcK6UmEkbNk22MqyPrZPx3T6fsE/O56XzkDfeYUF+Y=
 gonum.org/v1/netlib v0.0.0-20190313105609-8cb42192e0e0/go.mod h1:wa6Ws7BG/ESfp6dHfk7C6KdzKA7wR7u/rKwOGE66zvw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/fsnotify.v1 v1.4.7/go.mod h1:Tz8NjZHkW78fSQdbUxIjBTcgA1z1m8ZHf0WmKUhAMys=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
