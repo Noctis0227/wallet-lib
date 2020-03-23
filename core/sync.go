@@ -9,11 +9,7 @@ import (
 )
 
 //type Height in
-var NodeInfo *rpc.NodeInfo
-var LatestHeight = uint64(0)
-var IsServer = false
 
-var RpcClient *rpc.Client
 var synchronizer *sync2.Synchronizer
 var wg sync.WaitGroup
 
@@ -45,7 +41,7 @@ func saveTxs(txChan <-chan []rpc.Transaction) {
 		txs := <-txChan
 		if txs != nil {
 			for range txs {
-				//Storage.UpdateTxRecord(nil)
+				// save tx
 			}
 		}
 	}
@@ -62,8 +58,7 @@ func saveHistoryId() {
 			})
 		}
 
-		time.Sleep(time.Second * 1)
-		fmt.Printf("%s: %5d\r", "sync block id", historyId.LastTxBlockId)
+		time.Sleep(time.Second * 10)
 	}
 	wg.Done()
 }

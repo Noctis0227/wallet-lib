@@ -3,12 +3,11 @@ package app
 import (
 	"flag"
 	"fmt"
+	"git.diabin.com/BlockChain/wallet-lib/conf"
 	"git.diabin.com/BlockChain/wallet-lib/core"
-	"git.diabin.com/BlockChain/wallet-lib/database/sqlite"
-	"git.diabin.com/BlockChain/wallet-lib/log"
 	"git.diabin.com/BlockChain/wallet-lib/rpc"
+	"git.diabin.com/BlockChain/wallet-lib/sign"
 	"os"
-	"runtime"
 )
 
 type command interface {
@@ -20,19 +19,12 @@ type command interface {
 
 type txCommand struct {
 	*flag.FlagSet
-	record  bool
-	index   int
-	size    int
-	send    bool
-	from    string
-	to      string
-	amount  float64
-	speed   float64
 	find    bool
-	id      string
 	trading bool
-	rawtx   string
-	out     bool
+	raw     string
+	txId    string
+	sign    bool
+	code    string
 	key     string
 }
 
@@ -54,23 +46,9 @@ func init() {
 	cmdList = make([]command, 0)
 	cmdList = append(cmdList, &txCommand{FlagSet: flag.NewFlagSet("tx", flag.ExitOnError)})
 	cmdList = append(cmdList, &addrCommand{FlagSet: flag.NewFlagSet("addr", flag.ExitOnError)})
-	cmdList = append(cmdList, &syncCommand{FlagSet: flag.NewFlagSet("sync", flag.ExitOnError)})
-}
-
-func initDB() error {
-	db := &sqlite.Sqlite{}
-	core.Storage = db
-	core.List = db
-	return db.Open("data.db")
 }
 
 func StartCli(cmd string) {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	if err := initDB(); err != nil {
-		log.Errorf("open database failed! %s", err.Error())
-		return
-	}
-
 	var sel command
 	for _, c := range cmdList {
 		if c.name() == cmd {
@@ -79,11 +57,11 @@ func StartCli(cmd string) {
 		}
 	}
 	if sel != nil {
-		startIdx = 1
+		startIdx = 2
 		println()
 		sel.handle()
 	} else {
-		CliUsage(1)
+		CliUsage(2)
 	}
 }
 
@@ -92,18 +70,13 @@ func (cmd *txCommand) name() string {
 	return cmd.Name()
 }
 func (cmd *txCommand) parse() bool {
-	cmd.BoolVar(&cmd.send, "s", false, "send a tx to a specified address")
 	cmd.BoolVar(&cmd.find, "f", false, "query a transaction by id")
 	cmd.BoolVar(&cmd.trading, "t", false, "send the raw tx to the network")
-	cmd.StringVar(&cmd.id, "id", "", "the id of transaction")
-	cmd.StringVar(&cmd.from, "from", "", "the send address of transaction")
-	cmd.StringVar(&cmd.to, "to", "", "the receive address of transaction")
-	cmd.StringVar(&cmd.rawtx, "rawtx", "", "send raw tx of transaction")
-	cmd.StringVar(&cmd.key, "key", "", "tx id and vout index key")
-	cmd.Float64Var(&cmd.amount, "amt", 0, "the amount of transaction to be sent")
-	cmd.Float64Var(&cmd.speed, "speed", core.Trading_Speed_Slow, "the speed of trade")
-	cmd.IntVar(&cmd.index, "idx", 1, "start index of the query record")
-	cmd.IntVar(&cmd.size, "size", 50, "number of records returned")
+	cmd.BoolVar(&cmd.sign, "s", false, "sign transaction")
+	cmd.StringVar(&cmd.txId, "id", "", "the id of transaction")
+	cmd.StringVar(&cmd.raw, "rawtx", "", "the raw tx of transaction")
+	cmd.StringVar(&cmd.code, "code", "", "the transaction code")
+	cmd.StringVar(&cmd.key, "key", "", "the private key")
 	args := os.Args[startIdx:]
 	err := cmd.Parse(args)
 	if len(args) == 0 || err != nil {
@@ -123,20 +96,16 @@ func (cmd *txCommand) handle() {
 		cmd.usage()
 		return
 	}
+	rpcClient := rpc.NewClient(&rpc.RpcConfig{
+		Address: conf.Setting.Rpc.Host,
+		User:    conf.Setting.Rpc.User,
+		Pwd:     conf.Setting.Rpc.Pwd,
+	})
 	//fmt.Printf("r: %t\ns: %t\nfrom: %s\namount: %d\n", *latest, *send, *from, *amount)
 	switch true {
-	case cmd.send:
-		println("send tx", cmd.from, cmd.amount)
-		key := core.GetPK(cmd.from)
-		rs, ok := core.SendTransaction(cmd.from, key, cmd.to, cmd.amount, cmd.speed)
-		if ok {
-			println("send tx success, txid:", rs)
-		} else {
-			println("send tx failed!", rs)
-		}
 	case cmd.trading:
-		println("send raw tx ", cmd.rawtx)
-		rs, err := core.RpcClient.SendTransaction(cmd.rawtx)
+		println("send raw tx ", cmd.raw)
+		rs, err := rpcClient.SendTransaction(cmd.raw)
 		if err == nil {
 			println("send raw tx success, txid:", rs)
 		} else {
@@ -144,13 +113,16 @@ func (cmd *txCommand) handle() {
 		}
 	case cmd.find:
 		println("query a transaction")
-		txs, err := core.GetTransaction(cmd.id)
+		txs, err := rpcClient.GetTransaction(cmd.txId)
 		if err != nil {
 			println(err.Error())
 			return
 		}
 		printTransaction(txs)
-	case cmd.out:
+	case cmd.sign:
+		rs, err := sign.TxSign(cmd.code, cmd.key, conf.Setting.Version)
+		fmt.Println(rs, err)
+
 	}
 }
 
@@ -183,6 +155,7 @@ func (cmd *addrCommand) handle() {
 	switch true {
 	case cmd.generate:
 		println("generate a address")
+
 		println(core.GenerateAddr())
 	case cmd.list:
 		if rs := core.GetAddrs(); rs != nil {
@@ -201,32 +174,6 @@ func (cmd *addrCommand) handle() {
 }
 
 /*end from*/
-
-/*begin stats*/
-func (cmd *syncCommand) name() string {
-	return cmd.Name()
-}
-func (cmd *syncCommand) parse() bool {
-	args := os.Args[startIdx:]
-	err := cmd.Parse(args)
-	if len(args) == 0 || err != nil {
-		return false
-	}
-	return true
-}
-func (cmd *syncCommand) usage() {
-	cmd.Usage()
-}
-func (cmd *syncCommand) handle() {
-	if !cmd.parse() {
-		cmd.usage()
-		return
-	}
-	core.StartSync()
-
-}
-
-/*end stats*/
 
 func CliUsage(start int) {
 	startIdx = start

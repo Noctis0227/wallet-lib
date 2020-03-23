@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"encoding/hex"
 	"fmt"
+	"git.diabin.com/BlockChain/wallet-lib/address"
 	"git.diabin.com/BlockChain/wallet-lib/conf"
 	"git.diabin.com/BlockChain/wallet-lib/log"
-	"github.com/Qitmeer/qitmeer/qx"
 	"io"
 	"os"
 )
@@ -29,19 +29,15 @@ func LoadKeystore() {
 func GenerateAddr() string {
 	ver := conf.Setting.Version
 
-	s, err := qx.NewEntropy(32)
-	if err != nil {
-		log.Errorf("An error occurred generating s，%s", err)
-	}
-	prv, err := qx.EcNew("secp256k1", s)
+	priv, err := address.NewEcPrivateKey()
 	if err != nil {
 		log.Errorf("An error occurred generating private key，%s", err)
 	}
-	pub, err := qx.EcPrivateKeyToEcPublicKey(false, prv)
+	pub, err := address.EcPrivateToPublic(priv)
 	if err != nil {
 		log.Errorf("An error occurred generating public key，%s", err)
 	}
-	addr, err := qx.EcPubKeyToAddress(ver, pub)
+	addr, err := address.EcPublicToAddress(pub, ver)
 	if err != nil {
 		log.Errorf("An error occurred generating address，%s", err)
 	}
@@ -49,7 +45,7 @@ func GenerateAddr() string {
 	if kstore == nil {
 		kstore = &Keystore{AddrKeyMap: map[string]string{}}
 	}
-	kstore.AddrKeyMap[addr] = prv
+	kstore.AddrKeyMap[addr] = priv
 	kstore.DefAddr = addr
 	saveKeystore()
 	return addr
