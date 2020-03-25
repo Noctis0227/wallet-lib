@@ -51,11 +51,10 @@ wallet-lib is a wallet library for Qitmeer
     go get git.diabin.com/BlockChain/wallet-lib/sign
     go get git.diabin.com/BlockChain/wallet-lib/rpc
     
-    
-   ```
+	```
+   
    inputs := make(map[string]uint32, 0)
 	outputs := make(map[string]uint64, 0)
-
 	inputs["fa069bd82eda6b98e9ea40a575de1dc4c053d94a9901a956e13d30f6ab81413e"] = 0
 	outputs["TmUQjNKPA3dLBB6ZfcKd4YSDThQ9Cqzmk5S"] = 100000000
 	outputs["TmWRM7fk8SzBWvuUQv2cJ4T7nWPnNmzrbxi"] = 200000000
@@ -73,8 +72,8 @@ wallet-lib is a wallet library for Qitmeer
 			client.SendTransaction(rawTx)
 		}
 	}
-   	
-   	```
+	
+	```   
    	
 3. Address generation
 	
@@ -166,4 +165,4 @@ wallet-lib is a wallet library for Qitmeer
 		}
 		
 	
-	In addition to generating multiple addresses through the HD private key, multiple addresses can also be generated through the HD public key
+	In addition to generating multiple addresses through the HD private key, multiple addresses can also be generated through the HD public key.
