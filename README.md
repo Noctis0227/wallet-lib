@@ -1,14 +1,11 @@
 ## wallet-lib
-[![Build Status](https://travis-ci.com/HalalChain/qitmeer.svg?token=DzCFNC6nhEqPc89sq1nd&branch=master)](https://travis-ci.com/HalalChain/qitmeer)
 
 wallet-lib is a wallet library for Qitmeer
 
 #### How to use
 
 1. Synchronous transaction
-	
 	go get git.diabin.com/BlockChain/wallet-lib/sync
-	
 
    ```
     opt := &sync.Options{
@@ -43,15 +40,11 @@ wallet-lib is a wallet library for Qitmeer
 			time.Sleep(time.Second * 10)
 		}
 	}()
-	
    ```
-   
- 2. Sign transaction
+2. Sign transaction
 
     go get git.diabin.com/BlockChain/wallet-lib/sign
     go get git.diabin.com/BlockChain/wallet-lib/rpc
-    
-    
    ```
    inputs := make(map[string]uint32, 0)
 	outputs := make(map[string]uint64, 0)
@@ -72,10 +65,8 @@ wallet-lib is a wallet library for Qitmeer
 			client.SendTransaction(rawTx)
 		}
 	}
-	```  
-   	
+	```
 3. Address generation
-	
 	go get git.diabin.com/BlockChain/wallet-lib/address
 
 	##### One address per account
@@ -85,51 +76,41 @@ wallet-lib is a wallet library for Qitmeer
 			fmt.Println(err)
 			return
 		}
-		
 		ecPublic, err := address.EcPrivateToPublic(ecPrivate)
 		if err != nil {
 			fmt.Println(err)
-			return		
+			return
 		}
-		
 		address, err := address.EcPublicToAddress(ecPublic, "testnet")
 		if err != nil {
 			fmt.Println(err)
-			return	
+			return
 		}
-		
 	##### Manage multiple addresses on one account
 
 	###### Generate HD private key
-		
 		priv, err := address.NewHdPrivate("testnet")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		
 	###### Generate child private key
-		
 		priv0, err := address.NewHdDerive(priv, 0, "testnet")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-	
 		priv1, err := address.NewHdDerive(priv, 1, "testnet")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		
 	######  Child private key to secp256k1 private key
-	
 		ecPriv0, err := address.HdToEc(priv0, "testnet")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-	
 		ecPriv1, err := address.HdToEc(priv1, "testnet")
 		if err != nil {
 			fmt.Println(err)
@@ -148,20 +129,15 @@ wallet-lib is a wallet library for Qitmeer
 			fmt.Println(err)
 			return
 		}
-	
 	###### secp256k1 public key to address
-	
 		address0, err := address.EcPublicToAddress(ecPublic0, "testnet")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-	
 		address1, err := address.EcPublicToAddress(ecPublic1, "testnet")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		
-	
 	In addition to generating multiple addresses through the HD private key, multiple addresses can also be generated through the HD public key.
