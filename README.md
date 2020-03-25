@@ -50,8 +50,9 @@ wallet-lib is a wallet library for Qitmeer
     go get git.diabin.com/BlockChain/wallet-lib/sign
     go get git.diabin.com/BlockChain/wallet-lib/rpc
     
-   	```
-   	
+    
+   ```
+
    inputs := make(map[string]uint32, 0)
 	outputs := make(map[string]uint64, 0)
 
