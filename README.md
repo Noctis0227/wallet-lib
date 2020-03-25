@@ -45,6 +45,7 @@ wallet-lib is a wallet library for Qitmeer
 	}()
 	
    ```
+   
 2. Sign transaction
 
     go get git.diabin.com/BlockChain/wallet-lib/sign
@@ -52,7 +53,6 @@ wallet-lib is a wallet library for Qitmeer
     
     
    ```
-
    inputs := make(map[string]uint32, 0)
 	outputs := make(map[string]uint64, 0)
 
@@ -73,7 +73,6 @@ wallet-lib is a wallet library for Qitmeer
 			client.SendTransaction(rawTx)
 		}
 	}
-
    	
    	```
    	
@@ -101,7 +100,7 @@ wallet-lib is a wallet library for Qitmeer
 			return	
 		}
 		
-	#####Manage multiple addresses on one account
+	##### Manage multiple addresses on one account
 
 	###### Generate HD private key
 		
