@@ -43,7 +43,8 @@ wallet-lib is a wallet library for Qitmeer
 			time.Sleep(time.Second * 10)
 		}
 	}()
-    ```
+	
+   ```
 2. Sign transaction
 
     go get git.diabin.com/BlockChain/wallet-lib/sign
