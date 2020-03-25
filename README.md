@@ -46,7 +46,7 @@ wallet-lib is a wallet library for Qitmeer
 	
    ```
    
-2. Sign transaction
+ 2. Sign transaction
 
     go get git.diabin.com/BlockChain/wallet-lib/sign
     go get git.diabin.com/BlockChain/wallet-lib/rpc
