@@ -45,9 +45,7 @@ wallet-lib is a wallet library for Qitmeer
 2. Sign transaction
 
     #### go get git.diabin.com/BlockChain/wallet-lib/sign
-    
     #### go get git.diabin.com/BlockChain/wallet-lib/rpc
-    
    ```
    inputs := make(map[string]uint32, 0)
 	outputs := make(map[string]uint64, 0)
@@ -120,9 +118,7 @@ wallet-lib is a wallet library for Qitmeer
 			fmt.Println(err)
 			return
 		}
-	
 	######  secp256k1 sub-private key to public key
-	
 		ecPublic0, err := address.EcPrivateToPublic(ecPriv0)
 		if err != nil {
 			fmt.Println(err)
