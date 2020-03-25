@@ -1,150 +1,177 @@
-## kahf
+## wallet-lib
 [![Build Status](https://travis-ci.com/HalalChain/qitmeer.svg?token=DzCFNC6nhEqPc89sq1nd&branch=master)](https://travis-ci.com/HalalChain/qitmeer)
 
-Kahf is wallet main program for Qitmeer
+wallet-lib is a wallet library for Qitmeer
 
-#### Build
-```bash
-go build
-```
 #### How to use
 
-There has two ways to using the wallet
+1. Synchronous transaction
+	
+	```
+	go get git.diabin.com/BlockChain/wallet-lib/sync
+	
+	```
 
-1. Command line
+   ```
+    opt := &sync.Options{
+		RpcAddr: "127.0.0.1:1234",
+		RpcUser: "admin",
+		RpcPwd:  "123",
+		TxChLen: 100,
+	}
+	synchronizer = sync.NewSynchronizer(opt)
+	txChan, err := synchronizer.Start(&sync.HistoryId{0, 0})
+	if err != nil {
+		fmt.Printf(err.Error())
+		return
+	}
+	go func() {
+		for {
+			txs := <-txChan
+			for _, tx := range txs {
+				// save tx
+			}
+		}
+	}()
 
-    command format
-    
-    ```bash
-    ./kahf <cmd> [params]
-    ```
-    support commands
-    
-    ```bash
-    ./kahf <help|tx|out|addr|token|status|peer> [params]
-    ```
-          
-    examples
-    
-    ```bash
-   
-    # get helper
-    ./kahf help
-   
-    # generate a wallet address
-    ./kahf addr -g
-    
-    # get tokens from miner
-    ./kahf token -addr [address] -amt 10 -g
-    ```
+	go func() {
+		for {
+			historyId := synchronizer.GetHistoryId()
+			if historyId.LastTxBlockId != 0 {
+				// save historyID as the start id of the next synchronization
+			}
 
-2. Service mode
+			// update historyid every 10s
+			time.Sleep(time.Second * 10)
+		}
+	}()
+    ```
+2. Sign transaction
 
-    run
+	```
+    go get git.diabin.com/BlockChain/wallet-lib/sign
+    go get git.diabin.com/BlockChain/wallet-lib/rpc
     
-    ```bash
-    ./kahf --serv
-    ```
-    
-    support commands
-    
-    ```bash
-    ./kahf --serv <-help|-c>
-    ```
-    examples
-    
-    ```bash
-    # clear database
-    ./kahf --serv -c
-   
-    ```
-    
-    usage
-    
-    ```bash
-    # get helper
-    curl  -H 'Content-Type: application/json'  http://127.0.0.1:11360/api/helper |jq  
+   ```
  
-    # get utxo
-    curl  -H 'Content-Type: application/json'  http://127.0.0.1:11360/api/utxo?addr=[address] |jq 
- 
-    # get tx records
-    curl  -H 'Content-Type: application/json'  http://127.0.0.1:11360/api/tx?addr=[address] |jq 
- 
-    # get status of the address
-    curl  -H 'Content-Type: application/json'  http://127.0.0.1:11360/api/status?addr=[address] |jq 
- 
-    ```
-    
-    `Note` The 'Content-Type: application/json' is required
-    
-1. Console model
+   	```
+   	
+   inputs := make(map[string]uint32, 0)
+	outputs := make(map[string]uint64, 0)
 
-    run
-    
-    ```bash
-    ./kahf -console
-    ```
-   
-    examples
-    
-    ```bash
-    # get helper
-    [wallet-cli]: help
-    
-    # get utxo
-    [wallet-cli]: out -u [address]
-    ```
+	inputs["fa069bd82eda6b98e9ea40a575de1dc4c053d94a9901a956e13d30f6ab81413e"] = 0
+	outputs["TmUQjNKPA3dLBB6ZfcKd4YSDThQ9Cqzmk5S"] = 100000000
+	outputs["TmWRM7fk8SzBWvuUQv2cJ4T7nWPnNmzrbxi"] = 200000000
+	txCode, err := TxEncode(1, 0, inputs, outputs)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		rawTx, ok := TxSign(txCode, "b0985973cb08f7e0f013301a9686fe978cf1d887a8290184d39176c1a5157424", "testnet")
+		if ok {
+			client := rpc.NewClient(&rpc.RpcConfig{
+				User:    "admin",
+				Pwd:     "123",
+				Address: "127.0.0.1:1234",
+			})
+			client.SendTransaction(rawTx)
+		}
+	}
 
-#### Configuration instructions
+   	
+   	```
+   	
+3. Address generation
+	
+	```
+	
+	go get git.diabin.com/BlockChain/wallet-lib/address
+	
+	```
 
-***Config File Path:*** main/config.toml
+	##### One address per account
 
-```toml
-version="testnet"
-[miner]
-address="TmbCBKbZF8PeSdj5Chm22T4hZRMJY5D8zyz"
-key="c39fb9103419af8be42385f3d6390b4c0c8f2cb17cf24dd43a059c4045d1a419"
-[rpc]
-host="https://127.0.0.1:1234"
-auth="admin:123"
-syncBlockInterval=10
-syncMemoryInterval=5
-syncPeerInfoInterval=30
-syncNodeInfoInterval=3600
-syncLockedBlockInterval = 60
-syncInvalidBlockInterval=60
-[api]
-listenPort="11360"
-[auth]
-secretKey=""
-jwt="off"
-[mysql]
-user=""
-password=""
-dbname=""
-prefix=""
-maxidleconns=5
-maxopenconns=5
-[log]
-# <console|file>
-mode="console" 	
+		ecPrivate, err := NewEcPrivateKey()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		
+		ecPublic, err := EcPrivateToPublic(ecPrivate)
+		if err != nil {
+			fmt.Println(err)
+			return		
+		}
+		
+		address, err := EcPublicToAddress(ecPublic, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return	
+		}
+		
+	#####Manage multiple addresses on one account
 
-# <debug|info|warn|fail|error>	
-level="debug"
-
-buffersize=1000
-
-```
-
-`[miner]` The configuration under this node is used to get tokens from the miner‘s address, which are only used in private test environments
-
-`[rpc]` The configuration under this node is used to access main node of qitmeer with rpc
-
-`[api]` The configuration under this node is used to set api interface
-
-`[auth]` The configuration under this node is used to set JWT permission validation
-
-`[mysql]` The configuration under this node is used to set mysql
-
-`[log]` The configuration under this node is used to set log
+	###### Generate HD private key
+		
+		priv, err := NewHdPrivate("testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		
+	###### Generate child private key
+	
+		
+		priv0, err := NewHdDerive(priv, 0, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	
+		priv1, err := NewHdDerive(priv, 1, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		
+	######  Child private key to secp256k1 private key
+		ecPriv0, err := HdToEc(priv0, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	
+		ecPriv1, err := HdToEc(priv1, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	
+	######  secp256k1 sub-private key to public key
+	
+		ecPublic0, err := EcPrivateToPublic(ecPriv0)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		ecPublic1, err := EcPrivateToPublic(ecPriv1)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	
+	###### secp256k1 public key to address
+	
+		address0, err := EcPublicToAddress(ecPublic0, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	
+		address1, err := EcPublicToAddress(ecPublic1, "testnet")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		
+	
+	In addition to generating multiple addresses through the HD private key, multiple addresses can also be generated through the HD public key
