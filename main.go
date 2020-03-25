@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"git.diabin.com/BlockChain/wallet-lib/app"
+	"github.com/Noctis0227/wallet-lib/app"
 	"os"
 )
 

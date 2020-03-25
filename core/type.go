@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
-	"git.diabin.com/BlockChain/wallet-lib/log"
+	"github.com/Noctis0227/wallet-lib/log"
 )
 
 var empty []byte

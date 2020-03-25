@@ -2,7 +2,7 @@ package sync
 
 import (
 	"fmt"
-	"git.diabin.com/BlockChain/wallet-lib/rpc"
+	"github.com/Noctis0227/wallet-lib/rpc"
 	"time"
 )
 

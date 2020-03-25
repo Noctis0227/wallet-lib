@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"encoding/hex"
 	"fmt"
-	"git.diabin.com/BlockChain/wallet-lib/address"
-	"git.diabin.com/BlockChain/wallet-lib/conf"
-	"git.diabin.com/BlockChain/wallet-lib/log"
+	"github.com/Noctis0227/wallet-lib/address"
+	"github.com/Noctis0227/wallet-lib/conf"
+	"github.com/Noctis0227/wallet-lib/log"
 	"io"
 	"os"
 )

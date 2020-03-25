@@ -3,10 +3,10 @@ package app
 import (
 	"flag"
 	"fmt"
-	"git.diabin.com/BlockChain/wallet-lib/conf"
-	"git.diabin.com/BlockChain/wallet-lib/core"
-	"git.diabin.com/BlockChain/wallet-lib/rpc"
-	"git.diabin.com/BlockChain/wallet-lib/sign"
+	"github.com/Noctis0227/wallet-lib/conf"
+	"github.com/Noctis0227/wallet-lib/core"
+	"github.com/Noctis0227/wallet-lib/rpc"
+	"github.com/Noctis0227/wallet-lib/sign"
 	"os"
 )
 

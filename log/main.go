@@ -2,7 +2,7 @@ package log
 
 import (
 	"fmt"
-	"git.diabin.com/BlockChain/wallet-lib/conf"
+	"github.com/Noctis0227/wallet-lib/conf"
 	"log"
 	"os"
 	"strings"

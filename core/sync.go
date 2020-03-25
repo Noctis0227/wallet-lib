@@ -2,8 +2,8 @@ package core
 
 import (
 	"fmt"
-	"git.diabin.com/BlockChain/wallet-lib/rpc"
-	sync2 "git.diabin.com/BlockChain/wallet-lib/sync"
+	"github.com/Noctis0227/wallet-lib/rpc"
+	sync2 "github.com/Noctis0227/wallet-lib/sync"
 	"sync"
 	"time"
 )

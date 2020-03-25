@@ -1,7 +1,7 @@
 package core
 
 import (
-	"git.diabin.com/BlockChain/wallet-lib/rpc"
+	"github.com/Noctis0227/wallet-lib/rpc"
 )
 
 var Storage IStorage
