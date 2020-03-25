@@ -7,10 +7,8 @@ wallet-lib is a wallet library for Qitmeer
 
 1. Synchronous transaction
 	
-	```
 	go get git.diabin.com/BlockChain/wallet-lib/sync
 	
-	```
 
    ```
     opt := &sync.Options{
@@ -48,12 +46,9 @@ wallet-lib is a wallet library for Qitmeer
     ```
 2. Sign transaction
 
-	```
     go get git.diabin.com/BlockChain/wallet-lib/sign
     go get git.diabin.com/BlockChain/wallet-lib/rpc
     
-   ```
- 
    	```
    	
    inputs := make(map[string]uint32, 0)
@@ -82,11 +77,7 @@ wallet-lib is a wallet library for Qitmeer
    	
 3. Address generation
 	
-	```
-	
 	go get git.diabin.com/BlockChain/wallet-lib/address
-	
-	```
 
 	##### One address per account
 
